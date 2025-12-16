@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rexx & fatima</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Aesthetics */
+        .small-caps {
+            font-variant: small-caps;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+            line-height: 1.9;
+        }
+
+        .highlight {
+            color: #d6336c;
+            font-weight: 600;
+        }
+
+        /* Background Hearts */
+        .hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(105vh) scale(0.5); opacity: 0; }
+            30% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 420px;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Pages */
+        .page { display: none; animation: fadeIn 1.2s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 1.8rem; margin-bottom: 20px; font-weight: 600; }
+        p { font-size: 1rem; color: #555; margin-bottom: 30px; }
+        .date { font-size: 0.8rem; color: #bbb; letter-spacing: 4px; margin-bottom: 10px; display: block; }
+
+        /* Buttons */
+        .btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #333;
+            padding: 12px 35px;
+            font-family: 'Montserrat', sans-serif;
+            font-variant: small-caps;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #ffc2d1; border-color: #ffc2d1; color: white; }
+        .hidden { visibility: hidden; opacity: 0; transition: opacity 0.5s; }
+        .visible { visibility: visible; opacity: 1; }
+
+        /* --- BALLOONS --- */
+        .balloons-area { display: flex; justify-content: center; gap: 15px; height: 120px; align-items: flex-end; margin-bottom: 40px; }
+        .balloon {
+            width: 50px; height: 70px; background: #ffadad; border-radius: 50%;
+            position: relative; cursor: pointer; transition: transform 0.2s;
+            animation: bounce 3s infinite ease-in-out;
+        }
+        .balloon::after { content: ''; position: absolute; bottom: -10px; left: 24px; width: 1px; height: 30px; background: #888; }
+        .b2 { background: #ffd6a5; animation-delay: 0.5s; }
+        .b3 { background: #fdffb6; animation-delay: 1s; }
+        .pop-effect { transform: scale(1.5); opacity: 0; }
+
+        /* --- UPGRADED CAKE CSS --- */
+        .cake-wrapper {
+            position: relative;
+            width: 220px;
+            height: 180px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            cursor: pointer;
+        }
+        
+        /* Cake Body */
+        .cake-body {
+            width: 200px;
+            height: 100px;
+            background-color: #fce4ec; /* Light Pink Sponge */
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            box-shadow: inset -10px 0 rgba(0,0,0,0.05);
+        }
+        
+        /* Middle Filling Layer */
+        .cake-filling {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-color: #f48fb1;
+            opacity: 0.5;
+        }
+
+        /* Dripping Icing */
+        .icing {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background-color: #f8bbd0; /* Darker Pink Icing */
+            border-radius: 10px 10px 0 0;
+        }
+        .drip {
+            position: absolute;
+            background-color: #f8bbd0;
+            width: 20px;
+            height: 25px;
+            border-radius: 0 0 10px 10px;
+            top: 30px;
+        }
+        .d1 { left: 20px; height: 20px; }
+        .d2 { left: 50px; height: 35px; }
+        .d3 { left: 90px; height: 15px; }
+        .d4 { left: 130px; height: 30px; }
+        .d5 { left: 170px; height: 20px; }
+
+        /* Decorations (Hidden Initially) */
+        .decorations { opacity: 0; transition: opacity 1s; }
+        
+        .strawberry {
+            font-size: 25px;
+            position: absolute;
+            top: -25px;
+        }
+        .s1 { left: 20px; transform: rotate(-10deg); }
+        .s2 { left: 85px; top: -30px; }
+        .s3 { right: 20px; transform: rotate(10deg); }
+
+        .candle {
+            width: 8px; height: 50px;
+            background: linear-gradient(#fab1a0, #ff7675);
+            position: absolute;
+            left: 50%; top: -50px;
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+        .flame {
+            width: 12px; height: 18px;
+            background: #ff9f43;
+            border-radius: 50% 50% 20% 20%;
+            position: absolute; top: -18px; left: -2px;
+            animation: flicker 0.6s infinite alternate;
+            box-shadow: 0 0 10px #ff9f43;
+        }
+
+        @keyframes flicker { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        /* Cut Effect */
+        .slice {
+            position: absolute;
+            width: 50px;
+            height: 100px;
+            background-color: #f8bbd0;
+            right: 0;
+            top: 0;
+            opacity: 0; 
+        }
+        .cut-animation .cake-body {
+            clip-path: polygon(0 0, 70% 0, 70% 100%, 0% 100%);
+        }
+        .cut-animation .slice-piece {
+            position: absolute;
+            width: 60px; height: 100px;
+            background: #fce4ec;
+            right: 20px; top: 0;
+            border-radius: 0 10px 0 0;
+            transform: translate(20px, 10px) rotate(5deg);
+            opacity: 1 !important;
+            transition: all 1s;
+        }
+        .slice-piece .filling-piece {
+            width: 100%; height: 10px; background: #f48fb1; top: 50%; position: absolute;
+        }
+
+        /* Promise Box */
+        .promise-box {
+            border: 1px dashed #333;
+            padding: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="hearts-container" id="hearts"></div>
+
+    <div class="container small-caps">
+        
+        <!-- PAGE 1: Greeting -->
+        <div id="p1" class="page active">
+            <span class="date">17 dec 2025</span>
+            <h1>assalam-o-alaikum<br>fatima ji</h1>
+            <p>ek minute rukiye...<br>calendar dekha aapne?</p>
+            <p>aaj humare <span class="highlight">6 maheene</span> mukammal ho gaye.</p>
+            <button class="btn" onclick="nextPage('p2')">celebrate karein?</button>
+        </div>
+
+        <!-- PAGE 2: Balloons -->
+        <div id="p2" class="page">
+            <h1>thodi masti</h1>
+            <p>inn balloons ko phodiye (pop them)!</p>
+            <div class="balloons-area">
+                <div class="balloon" onclick="pop(this)"></div>
+                <div class="balloon b2" onclick="pop(this)"></div>
+                <div class="balloon b3" onclick="pop(this)"></div>
+            </div>
+            <button id="btn-p2" class="btn hidden" onclick="nextPage('p3')">next</button>
+        </div>
+
+        <!-- PAGE 3: Cake Decor -->
+        <div id="p3" class="page">
+            <h1>cake cutting 🎂</h1>
+            <p>ye cake pheeka hai.<br>is par click karke sajaiye.</p>
+            
+            <div class="cake-wrapper" onclick="decorate()">
+                <div class="cake-body">
+                    <div class="cake-filling"></div>
+                    <div class="icing">
+                        <div class="drip d1"></div><div class="drip d2"></div>
+                        <div class="drip d3"></div><div class="drip d4"></div><div class="drip d5"></div>
+                    </div>
+                    
+                    <div class="decorations" id="cake-decor">
+                        <div class="strawberry s1">🍓</div>
+                        <div class="strawberry s2">🍓</div>
+                        <div class="strawberry s3">🍓</div>
+                        <div class="candle"><div class="flame"></div></div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="btn-p3" class="btn hidden" onclick="nextPage('p4')">ab cut kariye</button>
+        </div>
+
+        <!-- PAGE 4: Cut Cake -->
+        <div id="p4" class="page">
+            <h1>make a wish</h1>
+            <p>aankhein band karke wish maangiye...<br>aur phir cake par click kariye.</p>
+            
+            <div class="cake-wrapper" onclick="cutCake(this)">
+                <div class="cake-body" id="main-cake">
+                    <div class="cake-filling"></div>
+                    <div class="icing">
+                        <div class="drip d1"></div><div class="drip d2"></div>
+                        <div class="drip d3"></div><div class="drip d4"></div><div class="drip d5"></div>
+                    </div>
+                    <div class="decorations" style="opacity: 1;">
+                        <div class="strawberry s1">🍓</div>
+                        <div class="strawberry s2">🍓</div>
+                        <div class="strawberry s3">🍓</div>
+                        <div class="candle"><div class="flame"></div></div>
+                    </div>
+                </div>
+                <!-- Hidden slice for animation -->
+                <div class="slice-piece" style="opacity: 0;">
+                    <div class="filling-piece"></div>
+                    <div class="strawberry s3" style="right: 5px;">🍓</div>
+                </div>
+            </div>
+
+            <button id="btn-p4" class="btn hidden" onclick="nextPage('p5')">wo letter padhiye</button>
+        </div>
+
+        <!-- PAGE 5: The Deep Talk -->
+        <div id="p5" class="page">
+            <h1>mubarak ho</h1>
+            <p>cake toh humne kaat liya.<br>par asli khushi tab hogi jab hum milenge.</p>
+            <p>log kehte hain mohabbat ke liye<br>nazron ka milna zaruri hai.<br>par unhe kya khabar?</p>
+            <p>maine aapko bina dekhe,<br>sirf aapki <span class="highlight">rooh</span> se mohabbat ki hai.</p>
+            <button class="btn" onclick="nextPage('p6')">aage...</button>
+        </div>
+
+        <!-- PAGE 6: The Wait -->
+        <div id="p6" class="page">
+            <h1>7.5 saal</h1>
+            <p>main janta hoon safar lamba hai.<br>kabhi kabhi dar lagta hai na?</p>
+            <p>par fatima ji,<br>ye faasle humare ehsaas se bade nahi hain.</p>
+            <p>main ye waqt kaat loonga,<br>kyunki manzil par <span class="highlight">aap</span> khadi hain.</p>
+            <button class="btn" onclick="nextPage('p7')">mera wada</button>
+        </div>
+
+        <!-- PAGE 7: Promise -->
+        <div id="p7" class="page">
+            <h1>rexx ka wada</h1>
+            <div class="promise-box">
+                "aaj 17 dec 2025 ko,<br>khuda ko gawah maan kar,<br>main rexx wada karta hoon.<br><br>
+                chahe waqt kitna bhi lage,<br>main sirf aur sirf aapka rahunga.<br>jab hum milenge, wo meri zindagi ka pehla din hoga."
+            </div>
+            <p>happy 6 months anniversary my love.<br>always yours.</p>
+            <br>
+            <span style="font-size: 40px;">💗</span>
+        </div>
+
+    </div>
+
+    <script>
+        // Floating Hearts Background
+        const heartsContainer = document.getElementById('hearts');
+        setInterval(() => {
+            const h = document.createElement('div');
+            h.classList.add('heart');
+            h.innerText = '💗';
+            h.style.left = Math.random() * 100 + '%';
+            h.style.animationDuration = Math.random() * 3 + 4 + 's';
+            heartsContainer.appendChild(h);
+            setTimeout(() => h.remove(), 7000);
+        }, 300);
+
+        // Page Navigation
+        function nextPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Balloon Pop Logic
+        let pops = 0;
+        function pop(el) {
+            if(el.style.opacity === '0') return;
+            el.classList.add('pop-effect');
+            setTimeout(() => el.style.opacity = '0', 200);
+            pops++;
+            if(pops === 3) document.getElementById('btn-p2').classList.add('visible');
+        }
+
+        // Cake Decoration
+        let isDecorated = false;
+        function decorate() {
+            if(!isDecorated) {
+                document.getElementById('cake-decor').style.opacity = '1';
+                isDecorated = true;
+                setTimeout(() => document.getElementById('btn-p3').classList.add('visible'), 500);
+            }
+        }
+
+        // Cake Cutting
+        let isCut = false;
+        function cutCake(wrapper) {
+            if(!isCut) {
+                wrapper.classList.add('cut-animation');
+                isCut = true;
+                setTimeout(() => document.getElementById('btn-p4').classList.add('visible'), 800);
+            }
+        }
+    </script>
+</body>
+                                                                                                       </html>
